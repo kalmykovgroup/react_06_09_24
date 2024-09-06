@@ -1,0 +1,8 @@
+.head{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    border: 1px solid red;
+    border-radius: 10px;
+}
