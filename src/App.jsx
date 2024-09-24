@@ -16,17 +16,10 @@ Link.propTypes = {
 
 function App() {
 
-    const count = useSelector((state) => state.value)
-
-    const dispatch = useDispatch()
-
-    console.log( dispatch);
 
   return (
 
       <BrowserRouter basename="/">
-          <span>{count}</span>
-          <button onClick={() => dispatch(incremented(12))}>send</button>
           <Header/>
           <div className="container">
               <Menu/>
