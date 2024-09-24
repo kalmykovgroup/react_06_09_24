@@ -1,19 +1,17 @@
-
-import { createRoot } from 'react-dom/client'
-import {BrowserRouter, Link} from "react-router-dom";
 import './index.css'
-import * as PropTypes from "prop-types";
+import { createRoot } from 'react-dom/client'
 import App from "./App.jsx";
+import {Provider} from "react-redux";
+import store from "./store.js"
 
-Link.propTypes = {
-    to: PropTypes.string,
-    children: PropTypes.node
-};
+
+
 createRoot(document.getElementById('root')).render(
     <>
-        <BrowserRouter basename="/">
-            <App />
-        </BrowserRouter>,
+        <Provider store={store}>
+                <App/>
+        </Provider>
+
     </>
 
 

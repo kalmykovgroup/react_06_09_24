@@ -1,6 +1,6 @@
 import './Matrix.css'
-import {Component} from "react";
 import Snake from "../snake/Snake.jsx";
+import {Component} from "react";
 
 
 class Matrix extends Component {
@@ -11,18 +11,20 @@ class Matrix extends Component {
     constructor(props) {
         super(props);
 
-        this.props.setRef(() => this);
         this.width = 600;
         this.height = 500;
 
-    }
+        this.snake = null;
 
+        this.setSnakeRef = element => {
+            this.snake = element;
+        };
+
+    }
 
     componentDidMount(){
-      this.snake = this.snake();
+
     }
-
-
 
     render() {
         return (<>
@@ -32,11 +34,13 @@ class Matrix extends Component {
                         <span>Game over</span>
                     </div>
 
-                   <Snake gameState={this.props.gameState}  width={this.width} height={this.height}  setRef={ref => this.snake = ref}/>
+                   <Snake setSnakeRef={this.setSnakeRef} width={this.width} height={this.height} />
                 </div>
         </>
         );
     }
+
+
 }
 
 

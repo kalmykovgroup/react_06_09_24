@@ -1,9 +1,9 @@
-import './Game.css'
-import {Component} from "react";
+import './Game.css';
+import React, {Component} from "react";
 import Matrix from "./matrix/Matrix.jsx";
 import Control from "./control/Control.jsx";
-
-
+import {saveState} from "../../../store.js";
+import {connect} from "react-redux";
 
 class Game extends Component {
 
@@ -11,43 +11,46 @@ class Game extends Component {
     constructor(props) {
         super(props);
 
-        this.initial()
-
+        this.matrix = React.createRef();
+        this.control = React.createRef();
     }
 
-    initial(){
-
-        this._matrix = <Matrix gameState={this.props.gameState} setRef={action => this.matrix = action}/>;
-
-        this._control = <Control gameState={this.props.gameState} setRef={action => this.refControl = action} refMatrix={() => this.matrix()} />;
-    }
 
     render() {
 
         return ( <>
-            <div className="game">
-                {this._matrix}
-               {this._control}
+           <div>
+               <Matrix ref={this.matrix} />
+               <Control ref={this.control} matrix={this.matrix} />
             </div>
 
         </>);
     }
 
 
-    componentWillUnmount(){
+    componentWillUnmount() {
 
         const positions = [];
 
-        for(let object of this.matrix().snake.state.body){
-            positions.push(object.action().state.position);
+        for(let object of this.matrix.current.snake.state.body){
+            positions.push(object.action.state.position);
         }
-
-
         this.props.saveState({
             positions : positions,
-            direction : this.refControl().state.direction
+            direction : this.control.current.state.direction
         });
+    }
+
+}
+
+const mapStateToProps = (state) => {
+    return {
+        positions: state.positions,
+        duration: state.duration
     }
 }
 
-export default Game;
+const mapDispatchToProps =  {
+    saveState
+}
+export default connect(mapStateToProps, mapDispatchToProps)(Game);

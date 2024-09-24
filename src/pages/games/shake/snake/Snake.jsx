@@ -1,7 +1,9 @@
 import './Snake.css'
 import Head from "./head/Head.jsx";
-import {Component} from "react";
+import React, {Component} from "react";
 import Part from "./body/Part.jsx";
+import {saveState} from "../../../../store.js";
+import {connect} from "react-redux";
 
 
 class Snake extends Component {
@@ -12,6 +14,7 @@ class Snake extends Component {
    }
     constructor(props) {
         super(props);
+        this.props.setSnakeRef(this);
 
         let min = Math.min(this.props.width , this.props.height);
 
@@ -19,25 +22,21 @@ class Snake extends Component {
 
         const object = {};
 
-        object.visualElement = <Head  sizeHead={this.sizeHead} setRef={action => object.action = action}/>
+        object.visualElement = <Head position={this.props.positions !== undefined ? this.props.positions[0] : undefined} sizeHead={this.sizeHead} setHeadRef={ref => object.action = ref}/>
 
         this.setBody(object);
 
+        for(let i = 1; i < this.props.positions?.length; ++i){
 
-        if(this.props.gameState !== undefined && this.props.gameState.positions.length > 1){
+            const object = { };
 
-            for(let i = 1; i < this.props.gameState.positions.length; ++i){
+            object.visualElement = <Part position={this.props.positions[i]} sizeHead={this.sizeHead} setPartRef={ref => { object.action = ref; }}/>;
 
-                const object = {};
+            this.state.body.push(object);
 
-                object.visualElement = <Part sizeHead={this.sizeHead} setRef={_action => object.action = _action}/>;
-
-                this.state.body.push(object);
-
-            }
         }
 
-        this.props.setRef(() => this);
+
     }
 
     setBody(object){
@@ -46,15 +45,21 @@ class Snake extends Component {
 
     setStartPosition(positions){
         for(let i = 0; i < positions.length; ++i)
-            this.state.body[i].action().move(positions[i]);
+            this.state.body[i].action.move(positions[i]);
     }
     move = (position) => {
 
-        this.state.body[0].action().move(position);
+        const positions = [];
 
-        for(let i = 1; i < this.state.body.length; ++i){
+        positions.push(position);
 
-            this.state.body[i].action().move(this.state.body[i - 1].action().state.oldPosition);
+        for(let i = 0; i < this.state.body.length - 1; ++i){
+            positions.push(this.state.body[i].action.state.position);
+        }
+
+
+        for(let i = 0; i < this.state.body.length; ++i){
+            this.state.body[i].action.move(positions[i]);
         }
 
     }
@@ -62,28 +67,22 @@ class Snake extends Component {
     setPart(){
         const lastIdx = this.state.body.length - 1;
 
+        const position = this.state.body[lastIdx].action.state.oldPosition;
+        let object =  { }
 
-        const startPosition = this.state.body[lastIdx].action().oldPosition;
-
-
-        let obj =  {visualElement : undefined, object : undefined}
-
-        obj.visualElement = <Part startPosition={startPosition} sizeHead={this.sizeHead} setRef={_action => obj.action = () => _action()}/>;
-
+        object.visualElement = <Part position={position} sizeHead={this.sizeHead} setPartRef={(ref) => object.action = ref}/>;
 
         this.setState({
             body : [
                 ...this.state.body,
-                obj
+                object
             ]
         });
 
     }
 
 
-    componentDidMount(){
 
-    }
 
 
     render() {
@@ -100,4 +99,15 @@ class Snake extends Component {
     }
 }
 
-export default Snake;
+const mapStateToProps = (state) => {
+    return {
+        positions: state.positions,
+        duration: state.duration
+    }
+}
+
+const mapDispatchToProps =  {
+    saveState
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Snake);

@@ -1,5 +1,7 @@
 import {Component} from "react";
 import './Control.css'
+import {connect} from "react-redux";
+import {saveState} from "../../../../store.js";
 class Control extends Component {
 
   direction = {
@@ -11,17 +13,19 @@ class Control extends Component {
 
 
     state = {
-        direction: this.direction.Top
+        direction: this.direction.Top,
+        speed : 500
     }
 
     constructor(props) {
         super(props);
 
-        if(this.props.gameState !== undefined){
-            this.state.direction = this.props.gameState.direction;
+
+        this.state = {
+            direction: this.props.direction ?? this.direction.Top,
+            speed : 500
         }
 
-        this.props.setRef(() => this);
         this.handleKeyDown = this.handleKeyDown.bind(this);
         this.isRun = false;
     }
@@ -43,24 +47,22 @@ class Control extends Component {
 
     componentDidMount(){
 
-        this.matrix = this.props.refMatrix();
-
-        const positions = this.props.gameState !== undefined ? this.props.gameState.positions : [];
+        const positions = this.props.positions ?? [];
 
         if(positions.length === 0)
         {
-            let x = (this.matrix.width / 2 - this.matrix.snake.sizeHead) ;
-            let y = (this.matrix.height / 2 - this.matrix.snake.sizeHead) ;
+            let x = (this.props.matrix.current.width / 2 - this.props.matrix.current.snake.sizeHead) ;
+            let y = (this.props.matrix.current.height / 2 - this.props.matrix.current.snake.sizeHead) ;
 
             let startPosition = {x : x, y : y}
 
-            startPosition.x = startPosition.x - (startPosition.x % this.matrix.snake.sizeHead);
-            startPosition.y = startPosition.y - (startPosition.y % this.matrix.snake.sizeHead);
+            startPosition.x = startPosition.x - (startPosition.x % this.props.matrix.current.snake.sizeHead);
+            startPosition.y = startPosition.y - (startPosition.y % this.props.matrix.current.snake.sizeHead);
 
             positions.push(startPosition);
         }
 
-        this.matrix.snake.setStartPosition(positions);
+        this.props.matrix.current.snake.setStartPosition(positions);
 
         document.addEventListener("keydown", this.handleKeyDown, false);
     }
@@ -80,50 +82,62 @@ class Control extends Component {
     start(){
         if(!this.isRun){
             this.isRun = true;
-
-            this.interval = setInterval(() => { this.tic(this); }, 550);
+            this.interval = setInterval(() => { this.tic(this); }, this.state.speed);
         }
     }
+
 
 
 
 
     tic(){
-        const pos = this.matrix.snake.state.body[0].action().state.position;
+        let x = this.props.matrix.current.snake.state.body[0].action.state.position.x;
+        let y = this.props.matrix.current.snake.state.body[0].action.state.position.y;
 
         switch (this.state.direction){
-            case this.direction.Top:     pos.y = pos.y - this.matrix.snake.sizeHead; break;
-            case this.direction.Bottom:  pos.y = pos.y + this.matrix.snake.sizeHead; break;
-            case this.direction.Left:    pos.x = pos.x - this.matrix.snake.sizeHead; break;
-            case this.direction.Right:   pos.x = pos.x + this.matrix.snake.sizeHead; break;
+            case this.direction.Top:     y = y - this.props.matrix.current.snake.sizeHead; break;
+            case this.direction.Bottom:  y = y + this.props.matrix.current.snake.sizeHead; break;
+            case this.direction.Left:    x = x - this.props.matrix.current.snake.sizeHead; break;
+            case this.direction.Right:   x = x + this.props.matrix.current.snake.sizeHead; break;
         }
 
-        if(pos.x < 0 || pos.y < 0 || pos.x > this.matrix.width - this.matrix.snake.sizeHead || pos.y > this.matrix.height - this.matrix.snake.sizeHead){
+        if(x < 0 || y < 0 || x > this.props.matrix.current.width - this.props.matrix.current.snake.sizeHead || y > this.props.matrix.current.height - this.props.matrix.current.snake.sizeHead){
             clearInterval(this.interval);
-             this.matrix.setState({
-                 isGameOver: true,
-                 isRun: false
-             });
+            this.props.matrix.current.setState({
+                isGameOver: true,
+                isRun: false
+            });
             return;
         }
 
 
-        this.matrix.snake.move(pos);
+        this.props.matrix.current.snake.move({x: x, y : y});
     }
     
-    addPart(){
-        this.matrix.snake.setPart();
-    }
+
 
     render() {
         return (<div className="control">
             <button onClick={() => this.start()}>start</button>
-            <button  onClick={() => this.addPart()}>addPart</button>
-
+            <button onClick={() => this.props.matrix.current.snake.setPart()}>addPart</button>
             <br/>
 
         </div> );
     }
 }
 
-export default Control;
+
+
+
+function mapStateToProps(state) {
+    return {
+        positions: state.positions,
+        direction: state.direction
+    }
+}
+
+const mapDispatchToProps =  {
+    saveState
+}
+
+export default connect(mapStateToProps , mapDispatchToProps, null, { forwardRef: true })(Control);

@@ -1,28 +1,28 @@
 import { createSlice, configureStore } from '@reduxjs/toolkit'
 
-const counterSlice = createSlice({
+const slice = createSlice({
     name: 'counter',
     initialState: {
-        value: 0
+        positions: undefined,
+        direction: undefined
     },
     reducers: {
-        incremented: state => {
-            // Redux Toolkit allows us to write "mutating" logic in reducers. It
-            // doesn't actually mutate the state because it uses the Immer library,
-            // which detects changes to a "draft state" and produces a brand new
-            // immutable state based off those changes
-            state.value += 1
-        },
-        decremented: state => {
-            state.value -= 1
+        saveState: (preState, newState) => {
+            // Redux Toolkit позволяет нам писать "изменяющуюся" логику в редукторах. На самом деле она
+            // не изменяет состояние, потому что использует библиотеку Immer,
+            // которая обнаруживает изменения в "черновом состоянии" и создает совершенно новое
+            // неизменяемое состояние, основанное на этих изменениях
+
+            preState.positions = newState.payload.positions ?? preState.positions;
+            preState.direction = newState.payload.direction ?? preState.direction;
         }
     }
 })
 
-export const { incremented, decremented } = counterSlice.actions
+export const { saveState } = slice.actions
 
 const store = configureStore({
-    reducer: counterSlice.reducer
+    reducer: slice.reducer
 })
 
 export default store;

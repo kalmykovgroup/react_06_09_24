@@ -9,9 +9,7 @@ import Game from "../pages/games/shake/Game.jsx";
 
 class Content extends Component {
 
-        state = {
-            gameState : undefined
-        }
+
     constructor(props) {
         super(props);
     }
@@ -23,18 +21,13 @@ class Content extends Component {
                 <Routes>
                     <Route path="/" element={<Home/>}/>
                     <Route path="about" element={<About/>}/>
-                    <Route path="game" element={<Game gameState={this.state.gameState} saveState={(pos) => this.saveGameState(pos)}/>}/>
+                    <Route path="game" element={<Game />}/>
                 </Routes>
             </div>
 
         </>);
     }
 
-    saveGameState(gameState){
-       this.setState({
-           gameState : gameState
-       });
-    }
 }
 
 export default Content;

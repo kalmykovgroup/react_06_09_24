@@ -6,25 +6,25 @@ class Head extends Component {
 
     state = {
         position : {x : 0, y : 0},
-        oldPosition : {x : 0, y : 0},
+        oldPosition : {x : 0, y : 0}
     }
     constructor(props) {
         super(props);
-        if(this.props.startPosition !== undefined){
-            this.state.position = this.props.startPosition;
-            this.state.oldPosition = this.props.startPosition;
-
+        if(this.props.position !== undefined){
+            this.state.position = this.props.position;
+            this.state.oldPosition = this.props.position;
         }
 
-
-        this.props.setRef(() => this);
+        this.props.setHeadRef(this);
     }
 
 
-    move(newPosition, callBack){
+    move(newPosition, callBack = null){
+
+        const oldPosition = this.state.position;
         this.setState({
-                oldPosition : this.state.position,
-                position : newPosition
+                position : newPosition,
+                oldPosition : oldPosition
             }, callBack
         );
     }
@@ -41,9 +41,6 @@ class Head extends Component {
                      width: this.props.sizeHead,
                      height: this.props.sizeHead,
                  }}>
-                 x:{this.state.position.x}
-                 <br/>
-                 y:{this.state.position.y}
              </div>
         </>);
     }

@@ -10,25 +10,26 @@ class Part extends Component {
     constructor(props) {
         super(props);
 
-        if(this.props.startPosition !== undefined){
-            this.state.position = this.props.startPosition;
-            this.state.oldPosition = this.props.startPosition;
-        }
+        props.setPartRef(this);
 
-        this.props.setRef(() => this);
+        if(this.props.position !== undefined){
+            this.state.position = this.props.position;
+            this.state.oldPosition = this.props.position;
+        }
 
 
     }
 
     componentDidMount(){
-        console.log("visible part");
-        console.log(this.state.oldPosition)
+
     }
 
-    move(newPosition, callBack){
+    move(newPosition, callBack = null){
+        const oldPosition = this.state.position;
+
         this.setState({
-                oldPosition : this.state.position,
-                position : newPosition
+                position : newPosition,
+                oldPosition : oldPosition
             }, callBack
         );
     }
@@ -43,9 +44,6 @@ class Part extends Component {
                     width: this.props.sizeHead,
                     height: this.props.sizeHead,
                 }}>
-                x:{this.state.position.x}
-                <br/>
-                y:{this.state.position.y}
             </div>
         </>);
     }
